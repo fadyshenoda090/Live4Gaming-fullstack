@@ -36,6 +36,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       (req as any)[current_user_key] =
         await this.jwtService.verifyAsync<JWTPayloadType>(token, {
           secret: this.config.getOrThrow<string>('JWT_SECRET'),

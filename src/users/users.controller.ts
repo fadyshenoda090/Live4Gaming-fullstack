@@ -45,7 +45,7 @@ export class UsersController {
   }
 
   @UseGuards(AuthRolesGuard)
-  @Roles(UserRole.Admin)
+  @Roles(UserRole.admin)
   @Get()
   public async getAllUsers() {
     return await this.usersService.getAllUsers();
@@ -53,13 +53,13 @@ export class UsersController {
 
   @Put('update-user/:id')
   @UseGuards(AuthRolesGuard)
-  @Roles(UserRole.normalUser, UserRole.Admin)
+  @Roles(UserRole.normalUser, UserRole.admin)
   public async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() userData: UpdateUserDto,
     @UserProfile() jwtPayload: JWTPayloadType,
   ) {
-    if (jwtPayload.role !== UserRole.Admin && jwtPayload.id !== id) {
+    if (jwtPayload.role !== UserRole.admin && jwtPayload.id !== id) {
       throw new ForbiddenException(
         'You are not authorized to update this user',
       );
@@ -69,7 +69,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(AuthRolesGuard)
-  @Roles(UserRole.Admin, UserRole.normalUser)
+  @Roles(UserRole.admin, UserRole.normalUser)
   public async deleteUser(
     @Param('id', ParseIntPipe) id: number,
     @UserProfile() payload: JWTPayloadType,

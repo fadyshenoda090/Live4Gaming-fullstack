@@ -75,7 +75,7 @@ export class UsersService {
       throw new NotFoundException('User does not exist');
     }
 
-    if (requesterRole !== UserRole.Admin) {
+    if (requesterRole !== UserRole.admin) {
       const adminOnlyFields: (keyof UpdateUserDto)[] = [
         'role',
         'stats',
@@ -118,7 +118,7 @@ export class UsersService {
   }
 
   public async deleteUser(id: number, payload: JWTPayloadType) {
-    if (payload.role !== UserRole.Admin && payload.id !== id) {
+    if (payload.role !== UserRole.admin && payload.id !== id) {
       throw new ForbiddenException('Not allowed to delete this user');
     }
 
