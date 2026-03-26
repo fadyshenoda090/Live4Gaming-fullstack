@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateTournamentDto } from './dtos/createTournament.dto';
 import { UpdateTournamentDto } from './dtos/updateTournament.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tournament } from './tournament.entity';
 import { Repository } from 'typeorm';
 import { GamesService } from '../games/games.service';
+import { JWTPayloadType } from '../utils/types';
+import { UserRole } from '../utils/enums';
 
 @Injectable()
 export class TournamentsService {
@@ -19,7 +25,9 @@ export class TournamentsService {
    * @returns all tournaments
    * */
   public async getTournaments() {
-    return await this.tournamentsRepository.find({ relations: ['game'] });
+    return await this.tournamentsRepository.find({
+      relations: ['game', 'organizer'],
+    });
   }
 
   /**
@@ -30,7 +38,7 @@ export class TournamentsService {
   public async getSingleTournament(id: number) {
     const tournament = await this.tournamentsRepository.findOne({
       where: { id },
-      relations: ['game'],
+      relations: ['game', 'organizer'],
     });
     if (!tournament) {
       throw new NotFoundException('Tournament was not found');
@@ -40,15 +48,20 @@ export class TournamentsService {
   /**
    * create a new tournament
    * @param tournamentData
+   * @param organizerId
    * @returns new tournament created
    * */
-  public async createTournament(tournamentData: CreateTournamentDto) {
+  public async createTournament(
+    tournamentData: CreateTournamentDto,
+    organizerId: number,
+  ) {
     const game = await this.gamesService.getSingleGame(
       Number(tournamentData.game),
     );
     const newTournament = this.tournamentsRepository.create({
       ...tournamentData,
       game,
+      organizer: { id: organizerId },
     });
     return await this.tournamentsRepository.save(newTournament);
   }
@@ -57,13 +70,24 @@ export class TournamentsService {
    * update a single tournament
    * @param id
    * @param tournamentData
+   * @param user
    * @returns updated tournament
    * */
   public async updateTournament(
     id: number,
     tournamentData: UpdateTournamentDto,
+    user: JWTPayloadType,
   ) {
     const tournament = await this.getSingleTournament(id);
+
+    if (
+      user.role !== UserRole.admin &&
+      tournament.organizer.id !== user.id
+    ) {
+      throw new ForbiddenException(
+        'You are not allowed to update this tournament',
+      );
+    }
 
     if (tournamentData.game) {
       const game = await this.gamesService.getSingleGame(
@@ -79,10 +103,21 @@ export class TournamentsService {
   /**
    * delete a single tournament
    * @param id
+   * @param user
    * @returns deleted tournament
    * */
-  public async deleteTournament(id: number) {
+  public async deleteTournament(id: number, user: JWTPayloadType) {
     const tournament = await this.getSingleTournament(id);
+
+    if (
+      user.role !== UserRole.admin &&
+      tournament.organizer.id !== user.id
+    ) {
+      throw new ForbiddenException(
+        'You are not allowed to delete this tournament',
+      );
+    }
+
     await this.tournamentsRepository.remove(tournament);
     return { message: `tournament with id ${id} was deleted`, tournament };
   }

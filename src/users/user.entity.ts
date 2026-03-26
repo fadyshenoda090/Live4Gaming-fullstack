@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { Tournament } from '../tournaments/tournament.entity';
@@ -72,4 +73,7 @@ export class User {
   @ManyToMany(() => Tournament, (tournament) => tournament.joinedParticipants)
   @JoinTable({ name: 'tournament_participants' })
   tournaments: Tournament[];
+
+  @OneToMany(() => Tournament, (tournament) => tournament.organizer)
+  organizedTournaments: Tournament[];
 }

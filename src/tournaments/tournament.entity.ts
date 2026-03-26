@@ -56,6 +56,9 @@ export class Tournament {
   @ManyToOne(() => Game, (game) => game.tournaments)
   game: Game;
 
+  @ManyToOne(() => User, (user) => user.organizedTournaments)
+  organizer: User;
+
   @Column({ type: 'int', default: 0 })
   maxParticipants: number;
 
