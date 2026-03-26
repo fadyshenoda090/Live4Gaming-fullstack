@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* Base Theme */
+:root {
+    --background: #0A0A0F;
+    --foreground: #E0E0E0;
+
+    --neon-purple: #A93AFF;
+    --neon-cyan: #00FFF0;
+    --neon-pink: #FF3CAC;
+    --neon-blue: #4DEEEA;
+    --cod-amber: #F59E0B;
+    --cod-orange: #F97316;
+    --cod-amber-light: #FBBF24;
+    --cod-orange-dark: #EA580C;
+    --cod-gray: #6B7280;
+    --cod-gray-light: #9CA3AF;
+
+    --surface-dark: #151521;
+}
+
+/* Tailwind Theme Integration */
+@theme inline {
+    /* 🎨 Colors - Brand Colors */
+    --color-primary: #F59E0B;          /* cod-amber (Tailwind amber-500) */
+    --color-primary-light: #FBBF24;    /* cod-amber-light (Tailwind amber-400) */
+    --color-primary-dark: #D97706;     /* Tailwind amber-600 */
+    
+    --color-secondary: #F97316;        /* cod-orange (Tailwind orange-500) */
+    --color-secondary-dark: #EA580C;   /* cod-orange-dark (Tailwind orange-600) */
+    
+    --color-accent-purple: #A93AFF;
+    --color-accent-cyan: #00FFF0;
+    --color-accent-pink: #FF3CAC;
+    --color-accent-blue: #16B2CA;      /* neon-blue */
+
+    /* 🌑 Backgrounds & Surfaces */
+    --color-bg-darker: #0A0A0F;        /* Main background */
+    --color-bg-dark: #101828;          /* Alternative dark bg / Section bg */
+    --color-surface: #151521;          /* Cards / Surfaces */
+    --color-surface-lighter: #1F2937;  /* gray-800 equivalent */
+    --color-surface-border: #374151;   /* gray-700 equivalent */
+    
+    /* 📝 Text Colors */
+    --color-text-main: #E0E0E0;
+    --color-text-muted: #9CA3AF;       /* gray-400 */
+    --color-text-dim: #6B7280;         /* gray-500 */
+    
+    /* Legacy/Specific (keeping for compatibility but organized) */
+    --color-main: #9c27b0;
+    --color-main-dark: #171C26;
+    --color-main-tap: #95acda;
+    --color-main-border: #2f384c;
+    --color-dark-bg: #1e1e1e;
+    --color-message-other: #3A3A3A;
+    --color-white-bg: #ffffff;
+    --color-n-text: #95ACDA;
+    --color-black-bg: #000000;
+    --color-input-bg: #161819;
+    --color-input-border: #ffffff66;
+    --color-auth-bg: #242829;
+    --color-text-white: #ffffff;
+    --color-text-black: #000000;
+    --color-err-text: #ff0000;
+    --color-discord: #5865F2;
+    --color-facebook: #3b5998;
+    --color-google: #DB4437;
+    --color-twitch: #9146FF;
+
+    /* 🌈 Gradients */
+    --background-primary-gradient: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    --background-amber-gradient: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --background-orange-gradient: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+    --background-header-gradient: linear-gradient(to right, var(--color-primary), var(--color-secondary), var(--color-primary-light));
+    
+    --background-cod-gradient: linear-gradient(135deg, #F59E0B, #F97316);
+    --background-cod-amber: linear-gradient(135deg, #F59E0B, #FBBF24);
+    --background-cod-orange: linear-gradient(135deg, #F97316, #EA580C);
+    --background-linear-gradient: linear-gradient(135deg, #d474ff, #9c27b0);
+    --background-linear-gradient-opposite: linear-gradient(135deg, #b066ff, #8e24aa);
+    --background-linear-gradient-gray: linear-gradient(90deg,
+    rgba(109, 125, 125, 0.63) 27%,
+    rgba(244, 244, 247, 1) 52%,
+    rgba(103, 113, 115, 0.42) 73%);
+
+    /* 🌟 Shadows */
+    --shadow-primary-glow: 0 0 25px rgba(245, 158, 11, 0.3);
+    --shadow-secondary-glow: 0 0 25px rgba(249, 115, 22, 0.4);
+    
+    --shadow-main-btn: 0px 4px 10px rgba(156, 39, 176, 0.5);
+    --shadow-main-btn-strong: 0px 6px 15px rgba(156, 39, 176, 0.8);
+    --shadow-card-store: 4px 4px 3px rgba(156, 39, 176, 0.8);
+
+    /* 🌀 Animations */
+    @keyframes movePupil {
+
+        0%,
+        100% {
+            transform: translate(0, 0);
+        }
+
+        25% {
+            transform: translate(-10px, -10px);
+        }
+
+        50% {
+            transform: translate(10px, 10px);
+        }
+
+        75% {
+            transform: translate(0, 10px);
+        }
+    }
+
+    --animate-move-pupil: movePupil 2s infinite ease-in-out;
+}
+
+/* Dark mode preference */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #101828;
+        --foreground: #EAEAEA;
+    }
+}
+
+/* Base styling */
+body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+}
+
+/* Neon utilities (optional custom effects) */
+.neon-text {
+    color: var(--neon-purple);
+    text-shadow:
+            0 0 10px var(--neon-purple),
+            0 0 20px var(--neon-purple),
+            0 0 40px var(--neon-cyan);
+}
+
+.neon-border {
+    border: 1px solid var(--neon-purple);
+    box-shadow:
+            0 0 10px var(--neon-purple),
+            0 0 20px var(--neon-cyan);
+}
+
+.react-multi-carousel-dot-list {
+    bottom: 0.5rem !important;
+}
+
+@keyframes spin-slow {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+}
