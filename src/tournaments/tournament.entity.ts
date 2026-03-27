@@ -10,6 +10,7 @@ import {
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { Game } from '../games/game.entity';
 import { User } from '../users/user.entity';
+import { TournamentStatus } from '../utils/enums';
 
 @Entity({ name: 'tournaments' })
 export class Tournament {
@@ -18,9 +19,6 @@ export class Tournament {
 
   @Column({ type: 'varchar', length: 100 })
   title: string;
-
-  @Column({ type: 'varchar', length: 50 })
-  genre: string;
 
   @Column({ type: 'varchar', nullable: true })
   image?: string;
@@ -37,7 +35,7 @@ export class Tournament {
   @Column({ type: 'varchar' })
   endDate: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'enum', enum: TournamentStatus })
   status: string;
 
   @CreateDateColumn({

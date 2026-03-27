@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { Tournament } from '../tournaments/tournament.entity';
+import { GameGenre } from '../utils/enums';
 
 @Entity({ name: 'games' })
 export class Game {
@@ -17,7 +18,7 @@ export class Game {
   @Column({ type: 'varchar', length: 50 })
   title: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'enum', enum: GameGenre })
   genre: string;
 
   @Column({ type: 'float', default: 0 })

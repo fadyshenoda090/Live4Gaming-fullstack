@@ -6,8 +6,10 @@ import {
   IsNotEmpty,
   Matches,
   Length,
+  IsEnum,
 } from 'class-validator';
 import { IsMatch } from '../validators/is-match.decorator';
+import { UserRole } from '../../utils/enums';
 
 export class RegisterDto {
   @IsString()
@@ -26,6 +28,9 @@ export class RegisterDto {
   @IsEmail({}, { message: 'Please enter a valid email address' })
   @IsNotEmpty()
   email: string;
+
+  @IsEnum(UserRole, { message: 'Invalid user role' })
+  role: UserRole;
 
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })

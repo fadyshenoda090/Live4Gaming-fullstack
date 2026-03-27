@@ -21,10 +21,6 @@ export class CreateTournamentDto {
   @Length(3, 100, { message: 'Title must be between 3 and 100 characters' })
   title: string;
 
-  @IsString({ message: 'Genre must be a string' })
-  @IsNotEmpty({ message: 'Genre must not be empty' })
-  genre: string;
-
   @IsOptional()
   @IsString({ message: 'Image must be a string (URL)' })
   image?: string;

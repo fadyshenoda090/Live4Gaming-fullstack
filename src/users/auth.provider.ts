@@ -55,7 +55,6 @@ export class AuthProvider {
       email,
       username,
       password: hashedPassword,
-      role: UserRole.normalUser, // Ensure role is always normalUser on register
     });
 
     await this.usersRepository.save(newUser);

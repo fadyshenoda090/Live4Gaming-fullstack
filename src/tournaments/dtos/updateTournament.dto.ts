@@ -19,11 +19,6 @@ export class UpdateTournamentDto {
   title?: string;
 
   @IsOptional()
-  @IsString({ message: 'Genre must be a string' })
-  @IsNotEmpty({ message: 'Genre must not be empty' })
-  genre?: string;
-
-  @IsOptional()
   @IsString({ message: 'Image must be a string (URL)' })
   image?: string;
 

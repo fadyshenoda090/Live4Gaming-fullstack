@@ -7,8 +7,10 @@ import {
   Min,
   Max,
   Length,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { GameGenre } from '../../utils/enums';
 
 export class CreateGameDto {
   @IsString({ message: 'Title must be a string' })
@@ -16,9 +18,8 @@ export class CreateGameDto {
   @Length(3, 50, { message: 'Title must be between 3 and 50 characters' })
   title: string;
 
-  @IsString({ message: 'Genre must be a string' })
-  @IsNotEmpty({ message: 'Genre must not be empty' })
-  genre: string;
+  @IsEnum(GameGenre, { message: 'invalid game genre' })
+  genre: GameGenre;
 
   @Type(() => Number)
   @IsNumber({}, { message: 'Rating must be a number' })

@@ -36,6 +36,11 @@ export class TournamentsService {
   private mapTournamentResponse(tournament: Tournament) {
     return {
       ...tournament,
+      game: {
+        id: tournament.game.id,
+        title: tournament.game.title,
+        genre: tournament.game.genre,
+      },
       organizer: {
         id: tournament.organizer.id,
         username: tournament.organizer.username,
