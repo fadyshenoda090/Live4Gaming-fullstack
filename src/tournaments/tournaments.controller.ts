@@ -16,7 +16,7 @@ import { AuthRolesGuard } from '../users/auth/auth-roles.guard';
 import { Roles } from '../users/decorators/user-role.decorator';
 import { UserRole } from '../utils/enums';
 import { UserProfile } from '../users/decorators/user-profile.decorator';
-import { JWTPayloadType } from '../utils/types';
+import type { JWTPayloadType } from '../utils/types';
 
 @Controller('api/tournaments')
 export class TournamentsController {

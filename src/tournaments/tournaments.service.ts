@@ -1,7 +1,7 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { CreateTournamentDto } from './dtos/createTournament.dto';
 import { UpdateTournamentDto } from './dtos/updateTournament.dto';
@@ -20,14 +20,48 @@ export class TournamentsService {
     private readonly gamesService: GamesService,
   ) {}
 
+  private async findTournamentEntity(id: number) {
+    const tournament = await this.tournamentsRepository.findOne({
+      where: { id },
+      relations: ['game', 'organizer', 'joinedParticipants'],
+    });
+
+    if (!tournament) {
+      throw new NotFoundException('Tournament was not found');
+    }
+
+    return tournament;
+  }
+
+  private mapTournamentResponse(tournament: Tournament) {
+    return {
+      ...tournament,
+      organizer: {
+        id: tournament.organizer.id,
+        username: tournament.organizer.username,
+        fullName: `${tournament.organizer.firstName} ${tournament.organizer.lastName}`,
+        avatar: tournament.organizer.avatar,
+      },
+    };
+  }
+
   /**
    * get all tournaments
    * @returns all tournaments
    * */
   public async getTournaments() {
-    return await this.tournamentsRepository.find({
-      relations: ['game', 'organizer'],
+    const tournaments = await this.tournamentsRepository.find({
+      relations: ['game', 'organizer', 'joinedParticipants'],
     });
+    return tournaments.map((tournament) => ({
+      ...tournament,
+      organizer: {
+        id: tournament.organizer.id,
+        username: tournament.organizer.username,
+        fullName: `${tournament.organizer.firstName} ${tournament.organizer.lastName}`,
+        avatar: tournament.organizer.avatar,
+      },
+    }));
   }
 
   /**
@@ -36,15 +70,13 @@ export class TournamentsService {
    * @returns tournament of the param id
    * */
   public async getSingleTournament(id: number) {
-    const tournament = await this.tournamentsRepository.findOne({
-      where: { id },
-      relations: ['game', 'organizer'],
-    });
+    const tournament = await this.findTournamentEntity(id);
     if (!tournament) {
       throw new NotFoundException('Tournament was not found');
     }
-    return tournament;
+    return this.mapTournamentResponse(tournament);
   }
+
   /**
    * create a new tournament
    * @param tournamentData
@@ -58,11 +90,17 @@ export class TournamentsService {
     const game = await this.gamesService.getSingleGame(
       Number(tournamentData.game),
     );
+
+    if (new Date(tournamentData.startDate) > new Date(tournamentData.endDate)) {
+      throw new ForbiddenException('Start date cannot be after end date');
+    }
+
     const newTournament = this.tournamentsRepository.create({
       ...tournamentData,
       game,
       organizer: { id: organizerId },
     });
+
     return await this.tournamentsRepository.save(newTournament);
   }
 
@@ -80,23 +118,41 @@ export class TournamentsService {
   ) {
     const tournament = await this.getSingleTournament(id);
 
-    if (
-      user.role !== UserRole.admin &&
-      tournament.organizer.id !== user.id
-    ) {
+    // Authorization
+    if (user.role !== UserRole.admin && tournament.organizer.id !== user.id) {
       throw new ForbiddenException(
         'You are not allowed to update this tournament',
       );
     }
 
     if (tournamentData.game) {
-      const game = await this.gamesService.getSingleGame(
+      tournament.game = await this.gamesService.getSingleGame(
         Number(tournamentData.game),
       );
-      tournament.game = game;
+    }
+
+    const newStartDate = tournamentData.startDate || tournament.startDate;
+    const newEndDate = tournamentData.endDate || tournament.endDate;
+
+    if (
+      newStartDate &&
+      newEndDate &&
+      new Date(newStartDate) > new Date(newEndDate)
+    ) {
+      throw new ForbiddenException('Start date cannot be after end date');
+    }
+
+    if (
+      tournamentData.maxParticipants !== undefined &&
+      tournamentData.maxParticipants < tournament.joinedParticipants.length
+    ) {
+      throw new ForbiddenException(
+        `Max participants cannot be less than already joined participants (${tournament.joinedParticipants.length})`,
+      );
     }
 
     Object.assign(tournament, tournamentData);
+
     return await this.tournamentsRepository.save(tournament);
   }
 
@@ -107,12 +163,9 @@ export class TournamentsService {
    * @returns deleted tournament
    * */
   public async deleteTournament(id: number, user: JWTPayloadType) {
-    const tournament = await this.getSingleTournament(id);
+    const tournament = await this.findTournamentEntity(id);
 
-    if (
-      user.role !== UserRole.admin &&
-      tournament.organizer.id !== user.id
-    ) {
+    if (user.role !== UserRole.admin && tournament.organizer.id !== user.id) {
       throw new ForbiddenException(
         'You are not allowed to delete this tournament',
       );
