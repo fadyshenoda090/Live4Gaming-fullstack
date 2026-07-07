@@ -1,6 +1,6 @@
 import type { Game } from "../../types/types.ts";
 import { useEffect, useState } from "react";
-import supabase from "../../supabase.ts";
+import { api } from "../../services/api.ts";
 import AllGames from "../../components/UI/AllGames.tsx";
 
 const GamesPage = () => {
@@ -11,22 +11,20 @@ const GamesPage = () => {
 
     useEffect(() => {
         const fetchGames = async () => {
-            const from = (page - 1) * pageSize;
-            const to = from + pageSize - 1;
-
-            const { data, error, count } = await supabase
-                .from("games")
-                .select("*", { count: "exact" })
-                .order("title", { ascending: true })
-                .range(from, to);
-
-            if (error) {
+            try {
+                // Backend currently doesn't support pagination, but we'll fetch all and simulate for now
+                // if we want to follow Supabase logic we should ideally update backend
+                const data = await api.get("/games");
+                
+                // Simulation of pagination if backend doesn't support it yet
+                const from = (page - 1) * pageSize;
+                const to = from + pageSize;
+                
+                setGames(data.slice(from, to) || []);
+                setTotal(data.length || 0);
+            } catch (error) {
                 console.error("Error fetching games:", error);
-                return;
             }
-
-            setGames(data || []);
-            setTotal(count || 0);
         };
 
         fetchGames();

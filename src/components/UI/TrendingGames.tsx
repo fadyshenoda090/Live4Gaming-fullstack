@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import type { Game } from "../../types/types.ts";
-import supabase from "../../supabase.ts";
+import { api } from "../../services/api.ts";
 import Gamecard from "../cards/Gamecard.tsx";
 
 const TrendingGames = ({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) => {
@@ -14,16 +14,12 @@ const TrendingGames = ({ setLoading }: { setLoading: React.Dispatch<React.SetSta
 
         const fetchTrendingGames = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('games')
-                    .select('*')
-                    .order('rating', { ascending: false })
-                    .limit(8);
-
-                if (error) throw error;
+                const data = await api.get('/games');
 
                 if (data && isMounted) {
-                    setTrendingGames(data);
+                    // Sort by rating descending and take top 8
+                    const sortedData = [...data].sort((a, b) => b.rating - a.rating).slice(0, 8);
+                    setTrendingGames(sortedData);
                     setIsLoading(false);
                 }
             } catch (err) {

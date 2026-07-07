@@ -1,4 +1,4 @@
-import supabase from "../../supabase.ts";
+import { api } from "../../services/api.ts";
 import {useEffect, useState} from "react";
 import type { Tournament} from "../../types/types.ts";
 import AllTournaments from "../../components/UI/AllTournaments.tsx";
@@ -10,26 +10,21 @@ const TournamentsPage = () => {
     const pageSize = 8;
 
     useEffect(() => {
-        const fetchGames = async () => {
-            const from = (page - 1) * pageSize;
-            const to = from + pageSize - 1;
+        const fetchTournaments = async () => {
+            try {
+                const data = await api.get("/tournaments");
 
-            const { data, error, count } = await supabase
-                .from("tournaments")
-                .select("*", { count: "exact" })
-                .order("start_date", { ascending: true })
-                .range(from, to);
+                const from = (page - 1) * pageSize;
+                const to = from + pageSize;
 
-            if (error) {
-                console.error("Error fetching games:", error);
-                return;
+                setTournaments(data.slice(from, to) || []);
+                setTotal(data.length || 0);
+            } catch (error) {
+                console.error("Error fetching tournaments:", error);
             }
-
-            setTournaments(data || []);
-            setTotal(count || 0);
         };
 
-        fetchGames();
+        fetchTournaments();
     }, [page]);
 
     const totalPages = Math.ceil(total / pageSize);

@@ -3,7 +3,7 @@ import 'react-multi-carousel/lib/styles.css'
 import React, { useEffect, useState } from 'react'
 import type { Game } from "../../types/types.ts";
 import Gamecard from "../cards/Gamecard.tsx";
-import supabase from "../../supabase.ts";
+import { api } from "../../services/api.ts";
 
 const RecommendedGames = ({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) => {
     const [recommendedGames, setRecommendedGames] = useState<Game[]>([])
@@ -14,17 +14,10 @@ const RecommendedGames = ({ setLoading }: { setLoading: React.Dispatch<React.Set
 
         const fetchRecommendedGames = async () => {
             try {
-                const { data, error } = await supabase
-                    .from("games")
-                    .select("*")
-                    .limit(8);
-
-                if (error) {
-                    throw error;
-                }
+                const data = await api.get("/games");
 
                 if (data && isMounted) {
-                    setRecommendedGames(data);
+                    setRecommendedGames(data.slice(0, 8));
                     setIsLoading(false);
                 }
             } catch (err) {

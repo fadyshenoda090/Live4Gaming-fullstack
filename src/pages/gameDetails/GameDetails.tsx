@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import RelatedGames from "../../components/UI/RelatedGames.tsx";
 import type {Game} from "../../types/types.ts";
 import {useParams} from "react-router-dom";
-import supabase from "../../supabase.ts";
+import { api } from "../../services/api.ts";
 import Loading from "../../components/UI/loading.tsx";
 
 const GameDetails = () => {
@@ -12,36 +12,18 @@ const GameDetails = () => {
 
     useEffect(() => {
         const fetchGameData = async () => {
-            // Fetch the current game
-            const { data: gameData, error: gameError } = await supabase
-                .from("games")
-                .select("*")
-                .eq("id", id)
-                .limit(1);
+            try {
+                // Fetch the current game
+                const gameData = await api.get(`/games/${id}`);
+                setGame(gameData);
 
-            if (gameError) {
-                console.error("Error fetching game:", gameError);
-                return;
-            }
-
-            if (gameData && gameData.length > 0) {
-                setGame(gameData[0]);
-            } else {
+                // Fetch all games for related filtering
+                const allGames = await api.get("/games");
+                setGames(allGames || []);
+            } catch (error) {
+                console.error("Error fetching game data:", error);
                 setGame(null);
-                return;
             }
-
-            // Fetch all games for related filtering
-            const { data: allGames, error: allGamesError } = await supabase
-                .from("games")
-                .select("*");
-
-            if (allGamesError) {
-                console.error("Error fetching all games:", allGamesError);
-                return;
-            }
-
-            setGames(allGames || []);
         };
 
         fetchGameData();

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import type { Tournament } from "../../types/types.ts";
 import EnrollModal from "../../components/UI/EnrollModal.tsx";
 import RelatedTournaments from "../../components/UI/RelatedTournaments.tsx";
-import supabase from "../../supabase.ts";
+import { api } from "../../services/api.ts";
 import Loading from "../../components/UI/loading.tsx";
 
 export default function TournamentDetails() {
@@ -18,39 +18,18 @@ export default function TournamentDetails() {
         const fetchTournamentData = async () => {
             if (!id) return;
 
-            // 🧠 Ensure id is numeric before querying
-            const numericId = Number(id);
-            if (isNaN(numericId)) {
-                console.error("Invalid tournament id (not a number):", id);
+            try {
+                // 🎯 Fetch the current tournament
+                const tournamentData = await api.get(`/tournaments/${id}`);
+                setTournament(tournamentData);
+
+                // 📦 Fetch all tournaments for related section
+                const allTournaments = await api.get("/tournaments");
+                setTournaments(allTournaments || []);
+            } catch (error) {
+                console.error("Error fetching tournament data:", error);
                 setTournament(null);
-                return;
             }
-
-            // 🎯 Fetch the current tournament
-            const { data: tournamentData, error: tournamentError } = await supabase
-                .from("tournaments")
-                .select("*")
-                .eq("id", numericId)
-                .single(); // ✅ directly gets one record
-
-            if (tournamentError) {
-                console.error("Error fetching tournament:", tournamentError);
-                setTournament(null);
-                return;
-            }
-
-            setTournament(tournamentData);
-
-            // 📦 Fetch all tournaments for related section
-            const { data: allTournaments, error: allTournamentsError } =
-                await supabase.from("tournaments").select("*");
-
-            if (allTournamentsError) {
-                console.error("Error fetching all tournaments:", allTournamentsError);
-                return;
-            }
-
-            setTournaments(allTournaments || []);
         };
 
         fetchTournamentData();

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import type { Game } from "../../types/types.ts";
-import supabase from "../../supabase.ts";
+import { api } from "../../services/api.ts";
 import Gamecard from "../cards/Gamecard.tsx";
 
 const NewReleases = ({
@@ -18,18 +18,15 @@ const NewReleases = ({
 
     const fetchNewReleases = async () => {
       try {
-        const { data, error } = await supabase
-          .from("games")
-          .select("*")
-          .order("release_date", { ascending: false })
-          .limit(8);
-
-        if (error) {
-          throw error;
-        }
+        const data = await api.get("/games");
 
         if (data && isMounted) {
-          setNewReleases(data);
+          // Sort by release_date descending and take top 8
+          const sortedData = [...data].sort((a, b) => 
+            new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+          ).slice(0, 8);
+          
+          setNewReleases(sortedData);
           setIsLoading(false);
         }
       } catch (err) {
